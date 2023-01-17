@@ -63,7 +63,9 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> 
         <script>
-            
+            let x=document.querySelector('table.pankajtable>tbody')
+            let bdy=document.querySelector('body'); 
+            let url='https:reqres.in';
             let tr="";
             //promise chain 
             //PO.then().then().catch();
@@ -72,8 +74,7 @@
             .then((response) => response.json())
             .then((data) => console.log(data));
               */
-             let x=document.querySelector('table.pankajtable>tbody')
-            fetch('https:reqres.in/api/users?page=2')
+            fetch(url+'/api/users?page=2')
             .then((res)=>{
                 return res.json();
             })
@@ -81,14 +82,14 @@
                 console.log(data.data);
                 for(variable of data.data){
                     tr +=` <tr>
-                            <th scope="row">${variable.id}</th>
+                            <td>${variable.id}</td>
                             <td>${variable.first_name}</td>
                             <td>${variable.last_name}</td>
                             <td>${variable.email}</td>
                             <td>
                                <button class="btn btn-sm btn-success">view</button> 
                                <button class="btn btn-sm btn-primary">edit</button> 
-                               <button class="btn btn-sm btn-danger">Delete</button>  
+                               <button class="btn btn-sm btn-danger"onclick="deleteUser(this)">Delete</button>  
                                 </td>
                         </tr>`;
                     console.log(variable.first_name);
@@ -99,10 +100,38 @@
             .catch((err)=>{
                 console.log(err);
             }) 
-        </script> 
-        <script>
-         let bdy=document.querySelector('body');
-        let sendMyData=(elem)=>{
+            let deleteUser=(elem)=>{
+                console.log(elem);
+                swal({
+                    title: "Are you sure?",
+                    text: "Once deleted, you will not be able to recover this imaginary file!",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                  })
+                    .then((willDelete) => {
+                    if (willDelete) {
+                        let tr=elem.closest('tr')
+                        let delit=tr.querySelector('td:first-child').innerHTML;
+                        //call your api
+                        fetch(`${url}/api/users/${delit}`,{
+                            method:"DELETE",
+                        })
+                        .then((data)=>{
+                            console.log(data);
+                            tr.remove();
+                            swal("Poof! Your imaginary file has been deleted!", {
+                            icon: "success",
+                        });
+                        })
+                        .catch((err)=>{
+                            console.log(err);
+                        })
+                       
+                    } 
+                 });           
+            }
+            let sendMyData=(elem)=>{
             let fn=(elem.querySelector('input#firstname').value);
             let ln=(elem.querySelector('input#lastname').value);
             let eml=(elem.querySelector('input#email').value);
@@ -110,47 +139,41 @@
                     //true
               swal('please fill the fileds!', "You clicked the button!", "error");
             }else{
-                // false
-                bdy.innerHTML +=`<div class="d-flex justify-content-center position-fixed top-50 start-50 pkspinner">
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                </div>`;  
-            //alert('okk')
-            console.log(elem);  
-            let jsondata = {
-                "first_name":fn,
-                "last_name":ln,
-                "email":eml
+                    // false
+                    bdy.innerHTML +=`<div class="d-flex justify-content-center position-fixed top-50 start-50 pkspinner">
+                                    <div class="spinner-border" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    </div>`;  
+                //alert('okk')
+                console.log(elem);  
+                let jsondata = {
+                    "first_name":fn,
+                    "last_name":ln,
+                    "email":eml
+                } 
+                console.log(jsondata);
+                fetch(url+'/api/users',{
+                    method: 'POST',
+                    headers: {
+                'Content-Type': 'application/json'
+                        // 'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                    body: JSON.stringify(jsondata)  
+                })
+                .then((res)=>{
+                    return res.json();  
+                })
+                .then((data)=>{
+                    swal("Data saved successfully!", "You clicked the button!", "success");
+                    document.querySelector('.pkspinner').remove();
+                // alert('Data saved successfully')
+                })
+                .catch((error)=>{
+                    console.log('error');
+                })
             }
-           
-            console.log(jsondata);
-
-            fetch('https://reqres.in/api/users',{
-                method: 'POST',
-                headers: {
-             'Content-Type': 'application/json'
-                     // 'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                 body: JSON.stringify(jsondata)  
-            })
-            .then((res)=>{
-                return res.json();  
-            })
-            .then((data)=>{
-                swal("Data saved successfully!", "You clicked the button!", "success");
-                document.querySelector('.pkspinner').remove();
-               // alert('Data saved successfully')
-            })
-            .catch((error)=>{
-                console.log('error');
-            })
-            }
-
-          
         }
-        
-        
         </script>
     </body>
 </html>
