@@ -28,8 +28,8 @@
                     ...
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-secondary a_closemodal" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveChange(this)">Save changes</button>
                 </div>
                 </div>
             </div>
@@ -120,7 +120,31 @@
             .catch((err)=>{
                 console.log(err);
             }) 
-            
+            let saveChange=(elem)=>{
+              let i=document.querySelector('form.editform input#userid').value;  
+              let n=document.querySelector('form.editform input#fname').value;  
+              let l=document.querySelector('form.editform input#lname').value;  
+              let e=document.querySelector('form.editform input#email').value;
+              console.log(n);  
+              console.log(l);  
+              console.log(e);  
+              console.log(i);  
+            //   you have to call api
+                fetch(`${url}/api/users/${i}`,{
+                    method:"PUT"
+                })
+                .then((d)=>{
+                    console.log(d.status);
+                    if(d.status == 200){
+                        document.querySelector('button.a_closemodal').click();
+                        swal("user updated successfully!", "You clicked the button!", "success");
+                        
+                    }
+                })
+                .catch((e)=>{
+                    console.log(error); 
+                });
+            }
             let ViewModal=(elem)=>{
                 console.log(elem)
                 let email = elem.closest('td').previousElementSibling.innerHTML;
@@ -136,19 +160,27 @@
                                 </ul>`
                   }
             let editModal=(elem)=>{
-                console.log(elem)
+                let id=elem.closest('tr').querySelector('td:first-child').innerHTML;
+                let nm=elem.closest('tr').querySelector('td:nth-child(2)').innerHTML;
+                let ln=elem.closest('tr').querySelector('td:nth-child(3)').innerHTML;
+                let eml=elem.closest('tr').querySelector('td:nth-child(4)').innerHTML;
+                
                 mt.innerHTML='edit Modal';
-                mb.innerHTML=` <form>
+                mb.innerHTML=` <form class="editform">
+                                <input type="hidden" id="userid" name="userid" value="${id}">
                                     <div class="mb-3">
-                                        <label for="exampleInputEmail1" class="form-label">Email address</label>
-                                        <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-                                        <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+                                        <label for="fname" class="form-label">first name</label>
+                                        <input name="fname" value="${nm}" type="text" class="form-control" id="fname">
                                     </div>
                                     <div class="mb-3">
-                                        <label for="exampleInputPassword1" class="form-label">Password</label>
-                                        <input type="password" class="form-control" id="exampleInputPassword1">
+                                        <label for="lname" class="form-label">last name</label>
+                                        <input name="lname" value="${ln}" type="text" class="form-control" id="lname">
                                     </div>
-                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email address</label>
+                                        <input type="email" value="${eml}" class="form-control" id="email" aria-describedby="emailHelp">
+                                    </div>
+                                    
                                 </form>`
                 
             }
